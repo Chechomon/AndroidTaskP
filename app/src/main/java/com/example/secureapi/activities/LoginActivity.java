@@ -2,33 +2,72 @@ package com.example.secureapi.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
-
+import com.example.secureapi.network.data.*;
 import com.example.secureapi.R;
 import com.example.secureapi.activities.MainActivity;
+import com.example.secureapi.network.services.IAuthService;
+
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LoginActivity extends AppCompatActivity {
 
     private static final String userLogin = "CrkJohn";
     private static final String pswLogin = "12345";
+    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
+    private  IAuthService authService;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http:/localhost:8080/") //localhost for emulator
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        authService = retrofit.create(IAuthService.class);
     }
 
     public void login(View view) {
-        Intent intent = new Intent(this, MainActivity.class);
+        final Intent intent = new Intent(this, MainActivity.class);
         EditText editUser = (EditText) findViewById(R.id.userText);
         EditText editPsw = (EditText) findViewById(R.id.userPassword);
-        String userS = editUser.getText().toString();
-        String pswS = editPsw.getText().toString();
+        final String userS = editUser.getText().toString();
+        final String pswS = editPsw.getText().toString();
         if(userS.equals(userLogin) && pswS.equals(pswLogin)){
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Response<Token> response =
+                                authService.login(new LoginWrapper(userS,pswS)).execute();
+                        final Token token = response.body();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                saveToken(token);
+                            }
+                        });
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
             startActivity(intent);
         }
         if(!userS.equals(userLogin)){
@@ -39,5 +78,14 @@ public class LoginActivity extends AppCompatActivity {
             editPsw.setError("Clave incorrecta");
 
         }
+    }
+
+    private void saveToken(Token token) {
+        SharedPreferences sharedPref =
+                getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.remove("TOKEN_KEY");
+        editor.putString("TOKEN_KEY", "Bearer "+token.getAccessToken());
+        editor.apply();
     }
 }
