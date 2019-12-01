@@ -6,14 +6,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+
+import com.example.secureapi.network.RetrofitNetwork;
 import com.example.secureapi.network.data.*;
 import com.example.secureapi.R;
 import com.example.secureapi.activities.MainActivity;
 import com.example.secureapi.network.services.IAuthService;
+import com.example.secureapi.network.services.ITaskService;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -35,7 +40,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http:/localhost:8080/") //localhost for emulator
+                .baseUrl("https://backieti.herokuapp.com/") //localhost for emulator
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -56,10 +61,20 @@ public class LoginActivity extends AppCompatActivity {
                         Response<Token> response =
                                 authService.login(new LoginWrapper(userS,pswS)).execute();
                         final Token token = response.body();
+
+                        /*
+                            Testing if this's works
+                            RetrofitNetwork retrofit1 = new RetrofitNetwork(token.getAccessToken());
+                            ITaskService taskService =  retrofit1.getTaskService();
+                            final Response<List<Task>> response1 =  taskService.getAllTask().execute();
+                        */
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                //Log.e("TaskList " , response1.body().toString());
+                                System.out.println(token.toString());
                                 saveToken(token);
+
                             }
                         });
 

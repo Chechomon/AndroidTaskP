@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.example.secureapi.R;
 
@@ -19,6 +20,10 @@ public class LaunchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         SharedPreferences sharedPref =
                 getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.remove(TOKEN_KEY);
+        editor.apply();
+        Log.e("Token" , "Value is " +  sharedPref.contains(TOKEN_KEY));
         Intent intent = new Intent(this,  sharedPref.contains(TOKEN_KEY)  ? MainActivity.class : LoginActivity.class );;
         startActivity(intent);
     }

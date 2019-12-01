@@ -42,4 +42,13 @@ public class Token{
     public String getPassword() {
         return password;
     }
+
+    @Override
+    public String toString() {
+        return "Token{" +
+                "accessToken='" + accessToken + '\'' +
+                ", userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }
