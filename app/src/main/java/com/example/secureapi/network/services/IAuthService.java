@@ -11,4 +11,5 @@ public interface IAuthService {
 
     @POST("v1/login/")
     Call<Token> login(@Body LoginWrapper login);
+	
 }

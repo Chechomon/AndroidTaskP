@@ -27,4 +27,5 @@ public class LaunchActivity extends AppCompatActivity {
         Intent intent = new Intent(this,  sharedPref.contains(TOKEN_KEY)  ? MainActivity.class : LoginActivity.class );;
         startActivity(intent);
     }
+	
 }

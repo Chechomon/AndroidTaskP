@@ -42,6 +42,4 @@ public class RetrofitNetwork {
         return retrofit.create(ITaskService.class);
     }
 
-
-
 }

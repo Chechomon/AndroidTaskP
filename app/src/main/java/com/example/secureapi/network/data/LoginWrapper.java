@@ -16,5 +16,4 @@ public class LoginWrapper {
         this.password = password;
     }
 
-
 }
